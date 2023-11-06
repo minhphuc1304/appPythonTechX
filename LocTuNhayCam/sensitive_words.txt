@@ -1,0 +1,10 @@
+bad
+inappropriate
+offensive
+hate
+profanity
+explicit
+vulgar
+abuse
+racist
+sexist
