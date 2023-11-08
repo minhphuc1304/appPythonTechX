@@ -84,6 +84,6 @@ gui_tin_nhan_button = tk.Button(root, text="Gửi", command=gui_tin_nhan, relief
 gui_tin_nhan_button.grid(row=2, column=0)
 
 trie_filter = TrieFilter()
-trie_filter.add_sensitive_words_from_file("/Users/lephuc/Desktop/gitpush/testgiaodien/sensitive_words.txt")  # Đảm bảo đường dẫn đúng đến tệp tin sensitive_words.txt
+trie_filter.add_sensitive_words_from_file("/Users/lephuc/Desktop/gitpush/AppLocTu/sensitive_words.txt")  # Đảm bảo đường dẫn đúng đến tệp tin sensitive_words.txt
 
 root.mainloop()
