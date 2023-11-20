@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+import tkinter.messagebox as messagebox
 
 class TrieNode:
     def __init__(self):
@@ -37,6 +38,20 @@ class TrieFilter:
                 node = self.root
         return found_words
     
+    def get_sensitive_words(self):
+        # Hàm này trả về danh sách các từ nhạy cảm trong Trie
+        danh_sach_tu = []
+        self._get_sensitive_words_recursive(self.root, "", danh_sach_tu)
+        return danh_sach_tu
+
+    def _get_sensitive_words_recursive(self, node, current_word, danh_sach_tu):
+        # Hàm đệ quy để lấy danh sách từ nhạy cảm
+        if node.is_end_of_word:
+            danh_sach_tu.append(current_word)
+        for char, child_node in node.children.items():
+            self._get_sensitive_words_recursive(child_node, current_word + char, danh_sach_tu)
+
+# ...
 
 def filter_sensitive_words(text, trie_filter):
     words = text.split()  # Tách văn bản thành danh sách các từ
@@ -52,6 +67,25 @@ def filter_sensitive_words(text, trie_filter):
         filtered_text.append(word)
 
     return ' '.join(filtered_text)  # Trả về văn bản sau khi đã lọc
+
+def hien_danh_sach_tu_nhay_cam():
+    danh_sach_tu = trie_filter.get_sensitive_words()
+    if danh_sach_tu:
+        danh_sach_tu_str = "\n".join(danh_sach_tu)
+        messagebox.showinfo("Danh sách từ nhạy cảm", f"Danh sách từ nhạy cảm:\n{danh_sach_tu_str}")
+    else:
+        messagebox.showinfo("Danh sách từ nhạy cảm", "Danh sách từ nhạy cảm trống!")
+
+def them_tu_nhay_cam_moi():
+    tu_moi = entry_tu_nhay_cam.get()
+    if tu_moi:
+        trie_filter.add_sensitive_word(tu_moi)
+        entry_tu_nhay_cam.delete(0, "end")
+
+        # Hiển thị thông báo thành công
+        messagebox.showinfo("Thông báo", f"Từ nhạy cảm '{tu_moi}' đã được thêm thành công!")
+
+
 
 def gui_tin_nhan():
     tin_nhan = entry.get()
@@ -79,6 +113,15 @@ scrollbar.grid(row=0, column=1, sticky="ns")
 entry = tk.Entry(root, relief="ridge", borderwidth=5, width=30)
 entry.grid(row=1, column=0, sticky="ew")
 entry.bind("<Return>", lambda event: gui_tin_nhan())
+
+entry_tu_nhay_cam = tk.Entry(root, relief="ridge", borderwidth=5, width=30)
+entry_tu_nhay_cam.grid(row=3, column=0, sticky="ew")
+
+them_tu_nhay_cam_button = tk.Button(root, text="Thêm từ nhạy cảm mới", command=them_tu_nhay_cam_moi, relief="ridge", borderwidth=3)
+them_tu_nhay_cam_button.grid(row=4, column=0)
+
+hien_danh_sach_button = tk.Button(root, text="Hiện danh sách từ nhạy cảm", command=hien_danh_sach_tu_nhay_cam, relief="ridge")
+hien_danh_sach_button.grid(row=5, column=0)
 
 gui_tin_nhan_button = tk.Button(root, text="Gửi", command=gui_tin_nhan, relief="ridge")
 gui_tin_nhan_button.grid(row=2, column=0)
