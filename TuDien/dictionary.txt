@@ -98,3 +98,7 @@ vulture
 walrus
 x-ray
 yak
+hehe
+hatan
+hell
+apchan
