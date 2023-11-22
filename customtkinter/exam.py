@@ -18,40 +18,21 @@ class Trie:
         node.is_end_of_word = True
 
     def search(self, prefix):
-
         if not prefix:
-            # Trả về một danh sách rỗng nếu tiền tố là chuỗi rỗng
             return []
-
         node = self.root
         for char in prefix:
             if char not in node.children:
-                # Return an empty list if the prefix is not found
                 return []
-
             node = node.children[char]
-
         return self._get_all_words_from_node(node, prefix)
 
     def _get_all_words_from_node(self, node, prefix):
         result = []
         if node.is_end_of_word:
-            result.append(prefix)
-
-        for char, child_node in node.children.items():
-            result.extend(self._get_all_words_from_node(child_node, prefix + char))
-
-        return result
-    
-    def _get_all_words_from_node(self, node, prefix):
-        result = []
-        if node.is_end_of_word:
-            # Trả về tuple chứa từ, nghĩa và loại từ
             result.append((prefix, dics.get(prefix, {}).get("meaning"), dics.get(prefix, {}).get("word_type")))
-
         for char, child_node in node.children.items():
             result.extend(self._get_all_words_from_node(child_node, prefix + char))
-
         return result
 
 def on_key_release(event):
@@ -59,17 +40,32 @@ def on_key_release(event):
     process_typed_string(typed_string)
 
 def process_typed_string(typed_string):
-    # Thực hiện xử lý với chuỗi đã gõ ở đây
     prefix = typed_string
     result = trie.search(prefix)
 
-    for word, meaning, word_type in result:
-        print(f"Word: {word}, Meaning: {meaning}, Word Type: {word_type}")
+    # Xóa tất cả các mục hiện có trong Listbox
+    listbox.delete(0, tk.END)
 
+    # Thêm các từ vào Listbox
+    for word, _, _ in result:
+        listbox.insert(tk.END, word)
+
+def on_select(event):
+    # Lấy chỉ số của mục được chọn
+    selected_index = listbox.curselection()
+
+    if selected_index:
+        # Lấy nội dung của mục được chọn
+        selected_item = listbox.get(selected_index)
+        # Lấy thông tin chi tiết từ từ điển
+        meaning = dics.get(selected_item, {}).get("meaning")
+        word_type = dics.get(selected_item, {}).get("word_type")
+        # In thông tin chi tiết
+        print(f"Word: {selected_item}, Meaning: {meaning}, Word Type: {word_type}")
 
 # Example Usage:
 trie = Trie()
-# words = ["cat", "car", "cot", "hot", "hat", "heap"]
+
 dics = {
     "hello": {"meaning": "xin chào", "word_type": "ghi chú"},
     "world": {"meaning": "thế giới", "word_type": "danh từ"},
@@ -78,12 +74,9 @@ dics = {
     "banana": {"meaning": "quả chuối", "word_type": "danh từ"},
     "book": {"meaning": "sách", "word_type": "danh từ"},
     "run": {"meaning": "chạy", "word_type": "động từ"},
-    "cat": {"meaning": "Mèo", "word_type": "danh từ"},
-    "car": {"meaning": "Xe hơi", "word_type": "danh từ"},
 }
 
-# Insert words into the trie
-for word, details in dics.items():
+for word in dics.keys():
     trie.insert(word)
 
 root = tk.Tk()
@@ -95,6 +88,13 @@ entry.pack()
 
 # Liên kết sự kiện nhả phím với hàm xử lý on_key_release
 entry.bind("<KeyRelease>", on_key_release)
+
+# Tạo một Listbox để hiển thị từ
+listbox = tk.Listbox(root)
+listbox.pack()
+
+# Liên kết sự kiện chọn mục trong Listbox với hàm xử lý on_select
+listbox.bind("<<ListboxSelect>>", on_select)
 
 # Chạy vòng lặp sự kiện của Tkinter
 root.mainloop()
