@@ -102,6 +102,14 @@ def them_tu_moi():
     else:
         hien_thi_ket_qua("Vui lòng nhập đủ thông tin cho từ mới.")
 
+def on_key_release(event):
+    typed_string = event.widget.get()
+    process_typed_string(typed_string)
+
+def process_typed_string(typed_string):
+    print(f"Processing typed string: {typed_string}")
+    # Thực hiện xử lý với chuỗi đã gõ ở đây
+
 # Giao diện đồ họa
 root = tk.Tk()
 root.title("Từ điển với Trie")

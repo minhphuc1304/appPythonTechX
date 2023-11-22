@@ -11,12 +11,10 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("CustomTkinter_Dictionary.py")
-        self.geometry(f"{800}x{580}")
+        self.geometry(f"{500}x{510}")
 
-        # configure grid layout (4x4)
-        self.grid_columnconfigure(1, weight=1)
-        self.grid_columnconfigure((2, 3), weight=0)
-        self.grid_rowconfigure(( 2, 3), weight=1)
+        # # configure grid layout (4x4)
+        # self.grid_columnconfigure(1, weight=1)
 
         # create sidebar frame with widgets
         self.sidebar_frame = customtkinter.CTkFrame(self, width=140, corner_radius=0)
@@ -27,10 +25,10 @@ class App(customtkinter.CTk):
         
         # create main entry and button
         self.entry = customtkinter.CTkEntry(self, placeholder_text="")
-        self.entry.grid(row=0, column=1, columnspan=1, padx=(20, 0), pady=(20, 5), sticky="nsew")
+        self.entry.grid(row=0, column=1, columnspan=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
 
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Tra từ", fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"))
-        self.main_button_1.grid(row=0, column=3, columnspan=1, padx=(20, 20), pady=(20, 5), sticky="nsew")
+        self.main_button_1.grid(row=0, column=3, columnspan=1, padx=(20, 20), pady=(20, 20), sticky="nsew")
 
         # create listbox
         self.listbox = tkinter.Listbox(self)
@@ -38,22 +36,8 @@ class App(customtkinter.CTk):
     
         # create answer
         self.ketqua = customtkinter.CTkTabview(self, width=250)
-        self.ketqua.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 5), sticky="nsew")
+        self.ketqua.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 25), sticky="nsew")
         
-
-    def open_input_dialog_event(self):
-        dialog = customtkinter.CTkInputDialog(text="Type in a number:", title="CTkInputDialog")
-        print("CTkInputDialog:", dialog.get_input())
-
-    def change_appearance_mode_event(self, new_appearance_mode: str):
-        customtkinter.set_appearance_mode(new_appearance_mode)
-
-    def change_scaling_event(self, new_scaling: str):
-        new_scaling_float = int(new_scaling.replace("%", "")) / 100
-        customtkinter.set_widget_scaling(new_scaling_float)
-
-    def sidebar_button_event(self):
-        print("sidebar_button click")
 
 
 if __name__ == "__main__":
