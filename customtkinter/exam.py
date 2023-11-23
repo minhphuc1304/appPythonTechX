@@ -63,6 +63,20 @@ def on_select(event):
         # In thông tin chi tiết
         print(f"Word: {selected_item}, Meaning: {meaning}, Word Type: {word_type}")
 
+def search_button_clicked():
+    typed_string = entry.get()  # Lấy chuỗi từ hộp nhập
+    result = trie.search(typed_string)
+
+    if len(result) == 1:
+        # Nếu chỉ có một kết quả, in ra giá trị
+        word, meaning, word_type = result[0]
+        print(f"Word: {word}, Meaning: {meaning}, Word Type: {word_type}")
+
+    else:
+        # Nếu có nhiều kết quả hoặc không có kết quả, hiển thị danh sách trong Listbox
+        for word, _, _ in result:
+            listbox.insert(tk.END, word)
+
 # Example Usage:
 trie = Trie()
 
@@ -74,6 +88,8 @@ dics = {
     "banana": {"meaning": "quả chuối", "word_type": "danh từ"},
     "book": {"meaning": "sách", "word_type": "danh từ"},
     "run": {"meaning": "chạy", "word_type": "động từ"},
+    "bank": {"meaning": "Ngân hàng", "word_type": "danh từ"},
+    "boss": {"meaning": "Sếp lớn", "word_type": "danh từ"},
 }
 
 for word in dics.keys():
@@ -95,6 +111,10 @@ listbox.pack()
 
 # Liên kết sự kiện chọn mục trong Listbox với hàm xử lý on_select
 listbox.bind("<<ListboxSelect>>", on_select)
+
+# Thêm một nút để thực hiện tìm kiếm
+search_button = tk.Button(root, text="Search", command=search_button_clicked)
+search_button.pack()
 
 # Chạy vòng lặp sự kiện của Tkinter
 root.mainloop()
