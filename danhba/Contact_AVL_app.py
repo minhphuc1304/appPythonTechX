@@ -5,15 +5,16 @@ from tkinter import simpledialog, messagebox
 customtkinter.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
 
-class Contact:
+class AVLNode:
     def __init__(self, name, phone):
         self.name = name
         self.phone = phone
         self.left = None
         self.right = None
+        self.height = 1
 
 
-class ContactBook:
+class AVLTree:
     def __init__(self):
         self.root = None
 
@@ -21,34 +22,125 @@ class ContactBook:
         self.root = self._insert_contact(self.root, name, phone)
 
     def _insert_contact(self, node, name, phone):
-        if node is None:
-            return Contact(name, phone)
+        if not node:
+            return AVLNode(name, phone)
+        
         if name < node.name:
             node.left = self._insert_contact(node.left, name, phone)
         elif name > node.name:
             node.right = self._insert_contact(node.right, name, phone)
+        else:
+            # Duplicate names are not allowed
+            return node
+
+        node.height = 1 + max(self._get_height(node.left), self._get_height(node.right))
+
+        balance = self._get_balance(node)
+
+        # Left Left Case
+        if balance > 1 and name < node.left.name:
+            return self._rotate_right(node)
+
+        # Right Right Case
+        if balance < -1 and name > node.right.name:
+            return self._rotate_left(node)
+
+        # Left Right Case
+        if balance > 1 and name > node.left.name:
+            node.left = self._rotate_left(node.left)
+            return self._rotate_right(node)
+
+        # Right Left Case
+        if balance < -1 and name < node.right.name:
+            node.right = self._rotate_right(node.right)
+            return self._rotate_left(node)
+
         return node
 
     def delete_contact(self, name):
         self.root = self._delete_contact(self.root, name)
 
-    def _delete_contact(self, node, name):
-        if node is None:
-            return node
-        if name < node.name:
-            node.left = self._delete_contact(node.left, name)
-        elif name > node.name:
-            node.right = self._delete_contact(node.right, name)
-        else:
-            if node.left is None:
-                return node.right
-            elif node.right is None:
-                return node.left
-            node.name = self._min_value_node(node.right).name
-            node.right = self._delete_contact(node.right, node.name)
-        return node
+    def _delete_contact(self, root, name):
+        if not root:
+            return root
 
-    def _min_value_node(self, node):
+        if name < root.name:
+            root.left = self._delete_contact(root.left, name)
+        elif name > root.name:
+            root.right = self._delete_contact(root.right, name)
+        else:
+            if root.left is None:
+                return root.right
+            elif root.right is None:
+                return root.left
+
+            temp = self._get_min_value_node(root.right)
+            root.name = temp.name
+            root.phone = temp.phone
+            root.right = self._delete_contact(root.right, temp.name)
+
+        if not root:
+            return root
+
+        root.height = 1 + max(self._get_height(root.left), self._get_height(root.right))
+
+        balance = self._get_balance(root)
+
+        # Left Left Case
+        if balance > 1 and self._get_balance(root.left) >= 0:
+            return self._rotate_right(root)
+
+        # Right Right Case
+        if balance < -1 and self._get_balance(root.right) <= 0:
+            return self._rotate_left(root)
+
+        # Left Right Case
+        if balance > 1 and self._get_balance(root.left) < 0:
+            root.left = self._rotate_left(root.left)
+            return self._rotate_right(root)
+
+        # Right Left Case
+        if balance < -1 and self._get_balance(root.right) > 0:
+            root.right = self._rotate_right(root.right)
+            return self._rotate_left(root)
+
+        return root
+
+    def _get_height(self, node):
+        if not node:
+            return 0
+        return node.height
+
+    def _get_balance(self, node):
+        if not node:
+            return 0
+        return self._get_height(node.left) - self._get_height(node.right)
+
+    def _rotate_left(self, z):
+        y = z.right
+        T2 = y.left
+
+        y.left = z
+        z.right = T2
+
+        z.height = 1 + max(self._get_height(z.left), self._get_height(z.right))
+        y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
+
+        return y
+
+    def _rotate_right(self, y):
+        x = y.left
+        T2 = x.right
+
+        x.right = y
+        y.left = T2
+
+        y.height = 1 + max(self._get_height(y.left), self._get_height(y.right))
+        x.height = 1 + max(self._get_height(x.left), self._get_height(x.right))
+
+        return x
+
+    def _get_min_value_node(self, node):
         current = node
         while current.left is not None:
             current = current.left
@@ -93,7 +185,7 @@ class App(customtkinter.CTk):
         self.title("IPHONE")
         self.geometry(f"{350}x{400}")
 
-        self.contact_book = ContactBook()
+        self.contact_book = AVLTree()
 
         # Configure column and row weights
         self.grid_columnconfigure((0, 1, 2, 3), weight=1)
