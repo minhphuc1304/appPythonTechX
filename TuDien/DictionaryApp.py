@@ -79,11 +79,12 @@ class App(customtkinter.CTk):
         # create main entry and button
         self.entry = customtkinter.CTkEntry(self, placeholder_text="")
         self.entry.grid(row=0, column=1, columnspan=1, padx=(20, 0), pady=(20, 20), sticky="nsew")
-        # Bind the KeyRelease event to the on_key_release function
-        self.entry.bind("<KeyRelease>", self.on_key_release)
 
         self.main_button_1 = customtkinter.CTkButton(master=self, text="Tra từ", fg_color="transparent", border_width=2, text_color=("gray10", "#DCE4EE"), command=self.search_button_clicked)
         self.main_button_1.grid(row=0, column=3, columnspan=1, padx=(20, 20), pady=(20, 20), sticky="nsew")
+
+        # Bind the KeyRelease event to the on_key_release function
+        self.entry.bind("<KeyRelease>", self.on_key_release)
 
         # create listbox
         self.listbox = tkinter.Listbox(self)
