@@ -40,20 +40,30 @@ class Trie:
             result.extend(self._get_all_words_from_node(child_node, prefix + char))
         return result
 
+    def get_all_words(self, node, prefix):
+        words = []
+        if node.is_end_of_word:
+            words.append(prefix)
+        for char, child_node in node.children.items():
+            words.extend(self.get_all_words(child_node, prefix + char))
+        return words
 
 dics = {
-    "hello": {"meaning": "xin chào", "word_type": "ghi chú"},
-    "world": {"meaning": "thế giới", "word_type": "danh từ"},
-    "python": {"meaning": "một ngôn ngữ lập trình", "word_type": "danh từ"},
-    "apple": {"meaning": "quả táo", "word_type": "danh từ"},
-    "banana": {"meaning": "quả chuối", "word_type": "danh từ"},
-    "book": {"meaning": "sách", "word_type": "danh từ"},
-    "run": {"meaning": "chạy", "word_type": "động từ"},
+    "apace": {"meaning": "Nhanh chóng", "word_type": "adverb"},
+    "adage": {"meaning": "Châm ngôn", "word_type": "noun"},
+    "world": {"meaning": "Thế giới", "word_type": "noun"},
+    "python": {"meaning": "Con trăn", "word_type": "noun"},
+    "apple": {"meaning": "Quả táo", "word_type": "noun"},
+    "banana": {"meaning": "Quả chuối", "word_type": "danh từ"},
+    "bath": {"meaning": "Bồn tắm", "word_type": "danh từ"},
+    "bail": {"meaning": "Giấy bảo lãnh", "word_type": "danh từ"},
+    "book": {"meaning": "Cuốn sách", "word_type": "danh từ"},
+    "run": {"meaning": "Chạy", "word_type": "động từ"},
     "bank": {"meaning": "Ngân hàng", "word_type": "danh từ"},
     "boss": {"meaning": "Sếp lớn", "word_type": "danh từ"},
     "angel": {"meaning": "Thiên thần", "word_type": "danh từ"},
     "egg": {"meaning": "Quả trứng", "word_type": "danh từ"},
-    "fan": {"meaning": "cái quạt", "word_type": "danh từ"},
+    "fan": {"meaning": "Cái quạt", "word_type": "danh từ"},
 }
 
 class App(customtkinter.CTk):
@@ -62,7 +72,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("CustomTkinter_Dictionary.py")
-        self.geometry(f"{500}x{400}")
+        self.geometry(f"{560}x{420}")
 
         # Initialize Trie and insert words
         self.trie = Trie()
@@ -75,6 +85,10 @@ class App(customtkinter.CTk):
         self.sidebar_frame.grid_rowconfigure(4, weight=1)
         self.logo_label = customtkinter.CTkLabel(self.sidebar_frame, text="Dictionary", font=customtkinter.CTkFont(size=20, weight="bold"))
         self.logo_label.grid(row=0, column=0, padx=20, pady=(10, 10))
+        self.listboxWords = tkinter.Listbox(self.sidebar_frame)
+        self.listboxWords.grid(row=4, column=0, padx=20, pady=(10, 10), sticky="nsew")
+        self.listboxWords.bind("<<ListboxSelect>>", self.on_select)
+        self.populate_listbox()
         
         # create main entry and button
         self.entry = customtkinter.CTkEntry(self, placeholder_text="")
@@ -96,11 +110,11 @@ class App(customtkinter.CTk):
         self.answer_frame = customtkinter.CTkFrame(self, width=250)
         self.answer_frame.grid(row=2, column=1, columnspan=3, padx=(20, 20), pady=(0, 20), sticky="nsew")
         self.label1 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
-        self.label1.grid(row=0, column=0, columnspan=3, padx=10, pady=10, sticky="")
+        self.label1.grid(row=0, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
         self.label2 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
-        self.label2.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="")
+        self.label2.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
         self.label3 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
-        self.label3.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="")
+        self.label3.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
 
 
     def on_key_release(self, event):
@@ -126,21 +140,32 @@ class App(customtkinter.CTk):
         for word, _, _ in result:
             self.listbox.insert(tk.END, word)
     
+    def update_labels(self, selected_item):
+        meaning = dics.get(selected_item, {}).get("meaning")
+        word_type = dics.get(selected_item, {}).get("word_type")
+        self.label1.configure(text=f"{selected_item}({word_type}): {meaning}")
+        # self.label2.configure(text=f"Nghĩa: {meaning}")
+        # self.label3.configure(text=f"Loại từ: {word_type}")
+
     def on_select(self, event):
-        # Get the index of the selected item
-        selected_index = self.listbox.curselection()
+        # Kiểm tra xem sự kiện đến từ listbox nào
+        self.listbox_widget = event.widget
+
+        # Lấy chỉ số của mục được chọn từ listbox
+        selected_index = self.listbox_widget.curselection()
 
         if selected_index:
-            selected_item = self.listbox.get(selected_index)
-            meaning = dics.get(selected_item, {}).get("meaning")
-            word_type = dics.get(selected_item, {}).get("word_type")
-            self.label1.configure(text=f"{selected_item}")
-            self.label2.configure(text=f"{meaning}")
-            self.label3.configure(text=f"{word_type}")
+            # Lấy mục được chọn từ listbox
+            selected_item = self.listbox_widget.get(selected_index)
+
+            # Gọi hàm để cập nhật labels
+            self.update_labels(selected_item)
+
     
     def search_button_clicked(self):
         typed_string = self.entry.get()  # Lấy chuỗi từ hộp nhập
         result = self.trie.search(typed_string)
+        self.listbox.delete(0, tk.END)
 
         if len(result) == 1:
             # Nếu chỉ có một kết quả, in ra giá trị
@@ -153,6 +178,11 @@ class App(customtkinter.CTk):
             # Nếu có nhiều kết quả hoặc không có kết quả, hiển thị danh sách trong Listbox
             for word, _, _ in result:
                 self.listbox.insert(tk.END, word)
+
+    def populate_listbox(self):
+        all_words = self.trie.get_all_words(self.trie.root, "")
+        for word in all_words:
+            self.listboxWords.insert(tk.END, word)
 
 
 if __name__ == "__main__":

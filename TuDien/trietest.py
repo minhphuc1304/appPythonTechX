@@ -1,100 +1,69 @@
 import tkinter as tk
+from PIL import Image, ImageTk
 
-class TrieNode:
-    def __init__(self):
-        self.children = {}
-        self.is_end_of_word = False
+class DictionaryListBoxApp:
+    def __init__(self, master, dictionary):
+        self.master = master
+        self.master.title("Dictionary ListBox App")
+        self.dictionary = dictionary
 
-class Trie:
-    def __init__(self):
-        self.root = TrieNode()
+        self.listbox = tk.Listbox(self.master, width=40, height=15)
+        self.listbox.pack(padx=10, pady=10)
+        self.listbox.bind("<ButtonRelease-1>", self.on_word_selected)
 
-    def insert(self, word):
-        node = self.root
-        for char in word:
-            if char not in node.children:
-                node.children[char] = TrieNode()
-            node = node.children[char]
-        node.is_end_of_word = True
+        self.scrollbar = tk.Scrollbar(self.master, orient=tk.VERTICAL)
+        self.listbox.config(yscrollcommand=self.scrollbar.set)
+        self.scrollbar.config(command=self.listbox.yview)
+        self.scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
 
-    def search(self, prefix):
+        self.populate_listbox()
 
-        if not prefix:
-            # Trả về một danh sách rỗng nếu tiền tố là chuỗi rỗng
-            return []
+    def populate_listbox(self):
+        for word in self.dictionary.keys():
+            self.listbox.insert(tk.END, word)
 
-        node = self.root
-        for char in prefix:
-            if char not in node.children:
-                # Return an empty list if the prefix is not found
-                return []
-
-            node = node.children[char]
-
-        return self._get_all_words_from_node(node, prefix)
-
-    def _get_all_words_from_node(self, node, prefix):
-        result = []
-        if node.is_end_of_word:
-            result.append(prefix)
-
-        for char, child_node in node.children.items():
-            result.extend(self._get_all_words_from_node(child_node, prefix + char))
-
-        return result
-    
-    def _get_all_words_from_node(self, node, prefix):
-        result = []
-        if node.is_end_of_word:
-            # Trả về tuple chứa từ, nghĩa và loại từ
-            result.append((prefix, dics.get(prefix, {}).get("meaning"), dics.get(prefix, {}).get("word_type")))
-
-        for char, child_node in node.children.items():
-            result.extend(self._get_all_words_from_node(child_node, prefix + char))
-
-        return result
-
-def on_key_release(event):
-    typed_string = event.widget.get()
-    process_typed_string(typed_string)
-
-def process_typed_string(typed_string):
-    # Thực hiện xử lý với chuỗi đã gõ ở đây
-    prefix = typed_string
-    result = trie.search(prefix)
-
-    for word, meaning, word_type in result:
-        print(f"Word: {word}, Meaning: {meaning}, Word Type: {word_type}")
+    def on_word_selected(self, event):
+        selected_word = self.listbox.get(self.listbox.curselection())
+        word_details = self.dictionary.get(selected_word, {})
+        self.show_word_details(word_details)
 
 
-# Example Usage:
-trie = Trie()
-# words = ["cat", "car", "cot", "hot", "hat", "heap"]
-dics = {
-    "hello": {"meaning": "xin chào", "word_type": "ghi chú"},
-    "world": {"meaning": "thế giới", "word_type": "danh từ"},
-    "python": {"meaning": "một ngôn ngữ lập trình", "word_type": "danh từ"},
-    "apple": {"meaning": "quả táo", "word_type": "danh từ"},
-    "banana": {"meaning": "quả chuối", "word_type": "danh từ"},
-    "book": {"meaning": "sách", "word_type": "danh từ"},
-    "run": {"meaning": "chạy", "word_type": "động từ"},
-    "cat": {"meaning": "Mèo", "word_type": "danh từ"},
-    "car": {"meaning": "Xe hơi", "word_type": "danh từ"},
-}
+    def show_word_details(self, word_details):
+        # Hiển thị chi tiết từ (ví dụ: cửa sổ pop-up, khung thông tin, vv.)
+        img_path = word_details.get("img", "default.png")
+        img_path = "/Users/lephuc/Desktop/gitpush/TuDien/" + img_path  # Thêm đường dẫn vào trước tên tệp
 
-# Insert words into the trie
-for word, details in dics.items():
-    trie.insert(word)
+        try:
+            image = Image.open(img_path)
+            image = image.resize((120, 140), Image.BICUBIC)  # Sử dụng Image.BICUBIC để thay thế cho Image.ANTIALIAS
+            photo = ImageTk.PhotoImage(image)
 
-root = tk.Tk()
-root.title("Từ điển với Trie")
+            img_label = tk.Label(self.master, image=photo)
+            img_label.image = photo
+            img_label.pack()
 
-# Tạo một ô văn bản (Entry) để nhập chuỗi
-entry = tk.Entry(root)
-entry.pack()
+        except Exception as e:
+            print(f"Error loading image: {e}")
 
-# Liên kết sự kiện nhả phím với hàm xử lý on_key_release
-entry.bind("<KeyRelease>", on_key_release)
+        meaning_label = tk.Label(self.master, text=f"Meaning: {word_details.get('meaning', 'N/A')}")
+        meaning_label.pack()
 
-# Chạy vòng lặp sự kiện của Tkinter
-root.mainloop()
+        word_type_label = tk.Label(self.master, text=f"Word Type: {word_details.get('word_type', 'N/A')}")
+        word_type_label.pack()
+
+def main():
+    dics = {
+        "python": {"meaning": "một ngôn ngữ lập trình", "word_type": "danh từ", "img": "python.png"},
+        "apple": {"meaning": "quả táo", "word_type": "danh từ", "img": "apple.jpg"},
+        "banana": {"meaning": "quả chuối", "word_type": "danh từ", "img": "banana.png"},
+        "book": {"meaning": "sách", "word_type": "danh từ", "img": "book.png"},
+        "run": {"meaning": "chạy", "word_type": "động từ", "img": "null.png"},
+        "bank": {"meaning": "Ngân hàng", "word_type": "danh từ", "img": "bank.png"},
+    }
+
+    root = tk.Tk()
+    app = DictionaryListBoxApp(root, dics)
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
