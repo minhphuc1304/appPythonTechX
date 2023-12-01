@@ -1,6 +1,8 @@
 import tkinter as tk
 import tkinter.messagebox
 import customtkinter
+from PIL import Image, ImageTk
+import os
 
 customtkinter.set_appearance_mode("Light")  # Modes: "System" (standard), "Dark", "Light"
 customtkinter.set_default_color_theme("blue")  # Themes: "blue" (standard), "green", "dark-blue"
@@ -49,21 +51,21 @@ class Trie:
         return words
 
 dics = {
-    "apace": {"meaning": "Nhanh chóng", "word_type": "adverb"},
-    "adage": {"meaning": "Châm ngôn", "word_type": "noun"},
-    "world": {"meaning": "Thế giới", "word_type": "noun"},
-    "python": {"meaning": "Con trăn", "word_type": "noun"},
-    "apple": {"meaning": "Quả táo", "word_type": "noun"},
-    "banana": {"meaning": "Quả chuối", "word_type": "danh từ"},
-    "bath": {"meaning": "Bồn tắm", "word_type": "danh từ"},
-    "bail": {"meaning": "Giấy bảo lãnh", "word_type": "danh từ"},
-    "book": {"meaning": "Cuốn sách", "word_type": "danh từ"},
-    "run": {"meaning": "Chạy", "word_type": "động từ"},
-    "bank": {"meaning": "Ngân hàng", "word_type": "danh từ"},
-    "boss": {"meaning": "Sếp lớn", "word_type": "danh từ"},
-    "angel": {"meaning": "Thiên thần", "word_type": "danh từ"},
-    "egg": {"meaning": "Quả trứng", "word_type": "danh từ"},
-    "fan": {"meaning": "Cái quạt", "word_type": "danh từ"},
+    "apace": {"meaning": "Nhanh chóng", "word_type": "adverb", "img": "img/default.png"},
+    "adage": {"meaning": "Châm ngôn", "word_type": "noun", "img": "img/default.png"},
+    "world": {"meaning": "Thế giới", "word_type": "noun", "img": "img/default.png"},
+    "python": {"meaning": "Con trăn", "word_type": "noun", "img": "img/python.jpg"},
+    "apple": {"meaning": "Quả táo", "word_type": "noun", "img": "img/apple.jpg"},
+    "banana": {"meaning": "Quả chuối", "word_type": "danh từ", "img": "img/banana.jpg"},
+    "bath": {"meaning": "Bồn tắm", "word_type": "danh từ", "img": "img/bath.jpg"},
+    "bail": {"meaning": "Giấy bảo lãnh", "word_type": "danh từ", "img": "img/default.png"},
+    "book": {"meaning": "Cuốn sách", "word_type": "danh từ", "img": "img/book.jpg"},
+    "run": {"meaning": "Chạy", "word_type": "động từ", "img": "img/default.png"},
+    "bank": {"meaning": "Ngân hàng", "word_type": "danh từ", "img": "img/default.png"},
+    "boss": {"meaning": "Sếp lớn", "word_type": "danh từ", "img": "img/default.png"},
+    "angel": {"meaning": "Thiên thần", "word_type": "danh từ", "img": "img/default.png"},
+    "egg": {"meaning": "Quả trứng", "word_type": "danh từ", "img": "img/egg.jpg"},
+    "fan": {"meaning": "Cái quạt", "word_type": "danh từ", "img": "img/default.png"},
 }
 
 class App(customtkinter.CTk):
@@ -72,7 +74,7 @@ class App(customtkinter.CTk):
 
         # configure window
         self.title("CustomTkinter_Dictionary.py")
-        self.geometry(f"{560}x{420}")
+        self.geometry(f"{560}x{520}")
 
         # Initialize Trie and insert words
         self.trie = Trie()
@@ -112,8 +114,8 @@ class App(customtkinter.CTk):
         self.label1 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
         self.label1.grid(row=0, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
         self.label2 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
-        self.label2.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
-        self.label3 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right")
+        self.label2.grid(row=1, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+        self.label3 = customtkinter.CTkLabel(master=self.answer_frame, text="", font=customtkinter.CTkFont(size=20, weight="bold"), anchor="e", justify="right",)
         self.label3.grid(row=2, column=0, columnspan=3, padx=10, pady=10, sticky="nw")
 
 
@@ -143,9 +145,14 @@ class App(customtkinter.CTk):
     def update_labels(self, selected_item):
         meaning = dics.get(selected_item, {}).get("meaning")
         word_type = dics.get(selected_item, {}).get("word_type")
+
         self.label1.configure(text=f"{selected_item}({word_type}): {meaning}")
-        # self.label2.configure(text=f"Nghĩa: {meaning}")
-        # self.label3.configure(text=f"Loại từ: {word_type}")
+
+        img_path = os.path.join(os.path.dirname(__file__), dics.get(selected_item, {}).get("img", 'default.jpg'))
+        img = Image.open(img_path)
+        img.thumbnail((210, 220))
+        img = ImageTk.PhotoImage(img)
+        self.label2.configure(image=img)
 
     def on_select(self, event):
         # Kiểm tra xem sự kiện đến từ listbox nào
@@ -168,14 +175,9 @@ class App(customtkinter.CTk):
         self.listbox.delete(0, tk.END)
 
         if len(result) == 1:
-            # Nếu chỉ có một kết quả, in ra giá trị
-            word, meaning, word_type = result[0]
-            self.label1.configure(text=f"{word}")
-            self.label2.configure(text=f"{meaning}")
-            self.label3.configure(text=f"{word_type}")
-
+            word, _, _ = result[0]
+            self.update_labels(word)
         else:
-            # Nếu có nhiều kết quả hoặc không có kết quả, hiển thị danh sách trong Listbox
             for word, _, _ in result:
                 self.listbox.insert(tk.END, word)
 
